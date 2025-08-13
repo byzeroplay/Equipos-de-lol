@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generador de Equipos de LoL</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
         body {
             font-family: 'Arial', sans-serif;
             text-align: center;
@@ -61,6 +63,15 @@
             gap: 20px;
             flex-wrap: wrap;
             margin-top: 20px;
+        }
+        /* ESTILO DEL TEXTO "VS" - NUEVO */
+        .vs-text {
+            font-family: 'Bangers', cursive;
+            font-size: 60px;
+            color: #ffd700; /* Color dorado */
+            text-shadow: 4px 4px 0px rgba(0,0,0,0.7);
+            margin: 0 10px;
+            transform: rotate(-5deg); /* Ligera rotación para un toque dinámico */
         }
         .equipo {
             background-color: rgba(51, 51, 51, 0.9);
@@ -264,7 +275,7 @@
         .marcador-container {
             position: absolute;
             right: 20px;
-            top: 500px;
+            top: 750px;
             background-color: rgba(26, 26, 26, 0.9);
             border: 2px solid #c8aa6e;
             border-radius: 12px;
@@ -380,6 +391,7 @@
             <h2>Equipo Azul</h2>
             <ul id="lista-equipo1"></ul>
         </div>
+        <div class="vs-text">VS</div>
         <div id="equipo2" class="equipo">
             <h2>Equipo Rojo</h2>
             <ul id="lista-equipo2"></ul>
@@ -388,7 +400,8 @@
     
     <div class="botones-acciones">
         <button onclick="mostrarModalJugadores()">Inscribir Jugadores</button>
-        <button onclick="generarEquipos()">Generar Equipos</button>
+        <button onclick="generarJugadores()">Generar Jugadores</button>
+        <button onclick="generarCampeones()">Generar Campeones</button>
     </div>
 
     <dialog id="jugadores-modal">
@@ -497,7 +510,7 @@
                 document.querySelectorAll('.cantidad-btn').forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
                 gameState.campeonesPorEquipo = parseInt(button.getAttribute('data-cantidad'));
-                generarEquipos();
+                generarJugadores();
             });
         });
 
@@ -514,7 +527,7 @@
             
             document.getElementById('jugadores-modal').close();
             mostrarTablaJugadores();
-            generarEquipos();
+            generarJugadores();
         }
 
         function mostrarTablaJugadores() {
@@ -536,69 +549,52 @@
             }
         }
 
-        function generarEquipos() {
-            const campeonesDisponibles = [...campeones];
-            const equipo1 = [];
-            const equipo2 = [];
-            const jugadoresDisponibles = shuffleArray([...gameState.jugadoresInscritos]);
+        function generarJugadores() {
+            let jugadoresDisponibles = shuffleArray([...gameState.jugadoresInscritos]);
+            const totalJugadoresNecesarios = gameState.campeonesPorEquipo * 2;
             
-            const totalJugadores = jugadoresDisponibles.length;
-            const totalNecesarios = gameState.campeonesPorEquipo * 2;
-
-            if (totalNecesarios > campeones.length) {
-                alert("No hay suficientes campeones para la cantidad seleccionada.");
-                return;
+            let equipo1 = [];
+            let equipo2 = [];
+            
+            const jugadoresParaAsignar = jugadoresDisponibles.slice(0, totalJugadoresNecesarios);
+            
+            for (let i = 0; i < jugadoresParaAsignar.length; i++) {
+                if (i % 2 === 0) {
+                    equipo1.push({ jugador: jugadoresParaAsignar[i], campeon: null });
+                } else {
+                    equipo2.push({ jugador: jugadoresParaAsignar[i], campeon: null });
+                }
             }
 
-            if (totalJugadores > totalNecesarios) {
-                alert(`No hay suficientes espacios para los ${totalJugadores} jugadores. Por favor, reduce la cantidad de jugadores o aumenta el tamaño del equipo.`);
-                return;
+            while (equipo1.length < gameState.campeonesPorEquipo) {
+                equipo1.push({ jugador: null, campeon: null });
             }
-
-            if (totalJugadores > 0) {
-                const mitad = Math.ceil(totalJugadores / 2);
-                const jugadoresEquipo1 = jugadoresDisponibles.splice(0, mitad);
-                const jugadoresEquipo2 = jugadoresDisponibles;
-
-                jugadoresEquipo1.forEach(jugador => {
-                    const indiceCampeon = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceCampeon, 1)[0];
-                    equipo1.push({ jugador: jugador, campeon: campeon });
-                });
-
-                jugadoresEquipo2.forEach(jugador => {
-                    const indiceCampeon = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceCampeon, 1)[0];
-                    equipo2.push({ jugador: jugador, campeon: campeon });
-                });
-                
-                while (equipo1.length < gameState.campeonesPorEquipo) {
-                    const indiceCampeon = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceCampeon, 1)[0];
-                    equipo1.push({ jugador: null, campeon: campeon });
-                }
-                while (equipo2.length < gameState.campeonesPorEquipo) {
-                    const indiceCampeon = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceCampeon, 1)[0];
-                    equipo2.push({ jugador: null, campeon: campeon });
-                }
-            } else {
-                while (equipo1.length < gameState.campeonesPorEquipo) {
-                    const indiceAleatorio = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceAleatorio, 1)[0];
-                    equipo1.push({ jugador: null, campeon: campeon });
-                }
-                while (equipo2.length < gameState.campeonesPorEquipo) {
-                    const indiceAleatorio = Math.floor(Math.random() * campeonesDisponibles.length);
-                    const campeon = campeonesDisponibles.splice(indiceAleatorio, 1)[0];
-                    equipo2.push({ jugador: null, campeon: campeon });
-                }
+            while (equipo2.length < gameState.campeonesPorEquipo) {
+                equipo2.push({ jugador: null, campeon: null });
             }
 
             gameState.equiposGenerados = [equipo1, equipo2];
-            mostrarEquipos(equipo1, "lista-equipo1", 'equipo-azul-text');
-            mostrarEquipos(equipo2, "lista-equipo2", 'equipo-rojo-text');
+            
+            // Re-renderizamos los equipos con los jugadores, pero sin campeones
+            mostrarEquipos(gameState.equiposGenerados[0], "lista-equipo1", 'equipo-azul-text');
+            mostrarEquipos(gameState.equiposGenerados[1], "lista-equipo2", 'equipo-rojo-text');
             mostrarTablaAsignacionEquipos();
+            saveGameState(); // Guardamos el estado con los nuevos jugadores
+        }
+
+        function generarCampeones() {
+            const campeonesDisponibles = shuffleArray([...campeones]);
+
+            gameState.equiposGenerados.forEach(equipo => {
+                equipo.forEach(item => {
+                    const indiceCampeon = Math.floor(Math.random() * campeonesDisponibles.length);
+                    const campeon = campeonesDisponibles.splice(indiceCampeon, 1)[0];
+                    item.campeon = campeon;
+                });
+            });
+
+            mostrarEquipos(gameState.equiposGenerados[0], "lista-equipo1", 'equipo-azul-text');
+            mostrarEquipos(gameState.equiposGenerados[1], "lista-equipo2", 'equipo-rojo-text');
             saveGameState();
         }
 
@@ -609,21 +605,29 @@
                 const li = document.createElement("li");
                 
                 const campeon = item.campeon;
-                let nombreArchivo = nombreParaURL[campeon] || campeon.replace(/[^a-zA-Z]/g, '');
-                
-                const icono = document.createElement("img");
-                icono.src = `https://ddragon.leagueoflegends.com/cdn/15.15.1/img/champion/${nombreArchivo}.png`;
-                icono.alt = `Ícono de ${campeon}`;
-                icono.classList.add('campeon-icon');
+                let nombreArchivo = null;
 
-                li.appendChild(icono);
+                if (campeon) {
+                    nombreArchivo = nombreParaURL[campeon] || campeon.replace(/[^a-zA-Z]/g, '');
+                    const icono = document.createElement("img");
+                    icono.src = `https://ddragon.leagueoflegends.com/cdn/15.15.1/img/champion/${nombreArchivo}.png`;
+                    icono.alt = `Ícono de ${campeon}`;
+                    icono.classList.add('campeon-icon');
+                    li.appendChild(icono);
+                }
+
                 if (item.jugador) {
                     const spanJugador = document.createElement("span");
-                    spanJugador.classList.add(colorClass); // Aplica la clase de color aquí
+                    spanJugador.classList.add(colorClass);
                     spanJugador.textContent = `${item.jugador}:`;
                     li.appendChild(spanJugador);
                 }
-                li.appendChild(document.createTextNode(campeon));
+                
+                if (campeon) {
+                    li.appendChild(document.createTextNode(campeon));
+                } else {
+                    li.appendChild(document.createTextNode('Sin asignar'));
+                }
                 
                 lista.appendChild(li);
             });
